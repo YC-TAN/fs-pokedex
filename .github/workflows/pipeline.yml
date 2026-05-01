@@ -13,7 +13,15 @@ jobs:
             - uses: actions/setup-node@v6
               with:
                 node-version: '24'
+
             - name: Install dependencies
               run: npm install
+
             - name: Check style with Eslint
               run: npm run eslint
+
+            - name: Testing
+              run: npm run test
+
+            - name: Build
+              run: npm run build
