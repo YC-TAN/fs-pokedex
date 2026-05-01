@@ -10,7 +10,8 @@ module.exports = [
       'eslint.config.js',
       '.eslintrc.js',
       'node_modules/**',
-      'dist/**'
+      'dist/**',
+      'jest.setup.js'
     ]
   },
   js.configs.recommended,
@@ -73,5 +74,5 @@ module.exports = [
       'no-console': 'error',
       'react/prop-types': 0
     }
-  }
+  },
 ]
