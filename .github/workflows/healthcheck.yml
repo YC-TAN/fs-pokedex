@@ -3,7 +3,7 @@ name: Health Check
 on:
     workflow_dispatch:
     schedule:
-        - cron: '*/15 * * * *'
+        - cron: '0 0 * * *'
 
 jobs:
     health_check:
@@ -13,3 +13,14 @@ jobs:
               uses: jtalk/url-health-check-action@v5
               with:
                 url: https://fs-pokedex-r19i.onrender.com/health
+
+            - name: Notify failure
+              uses: sarisia/actions-status-discord@v1
+              if: ${{ failure() }}
+              with:
+                webhook: ${{ secrets.WEBHOOK_URL }}
+                content: "❌ Health check failed! Site may be down!"
+                title: "Health Check Failed"
+                description: |
+                    **URL:** https://fs-pokedex-r19i.onrender.com/health
+                    **Time:** ${{ github.event.schedule }}
