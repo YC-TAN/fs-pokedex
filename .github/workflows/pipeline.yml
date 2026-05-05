@@ -9,7 +9,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  initial_deployment_pipeline:
+  build_and_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -42,13 +42,21 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+  deploy:
+    needs: [build_and_test]
+    runs-on: ubuntu-latest
+    steps:
       - name: Trigger deployment        
         if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ','), '#skip') }}
         run: curl ${{secrets.RENDER_DEPLOY_HOOK}}
-
-      - name: Success
-        uses: sarisia/actions-status-discord@v1
-        if: ${{ github.event_name == 'push' && success() }}
+  
+  notify_success:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && success() }}
+    steps:
+      - name: Success notification
+        uses: sarisia/actions-status-discord@v1        
         with:
           webhook: ${{ secrets.WEBHOOK_URL }}
           status: ${{ job.status }}
@@ -59,14 +67,14 @@ jobs:
             **Commit:** ${{ github.sha}}
             **Message:** ${{ github.event.head_commit.message }}
             **Author:** ${{ github.event.head_commit.author.name }}
-      
-      - name: Test failure
-        if: ${{ github.event_name == 'push' }}
-        run: exit 1
-
-      - name: Run on failure
+  
+  notify_failure:
+    needs: [build_and_test, deploy]
+    runs-on: ubuntu-latest
+    if: ${{ always() && failure() }}
+    steps: 
+      - name: Failure notification
         uses: sarisia/actions-status-discord@v1
-        if: ${{ github.event_name == 'push' && failure() }}
         with:
           webhook: ${{ secrets.WEBHOOK_URL }}
           status: ${{ job.status }}
@@ -76,22 +84,20 @@ jobs:
           description: |
             **Repo:** ${{ github.repository }}
             **Branch:** ${{ github.ref_name }}
-            **Commit:** `${{ github.sha }}`
+            **Commit:** ${{ github.sha }}
             **Message:** ${{ github.event.head_commit.message }}
             **Author:** ${{ github.event.head_commit.author.name }}
             **Workflow:** ${{ github.workflow }}
             **Job:** ${{ github.job }}
             [View Commit](${{ github.event.head_commit.url }}) 
             [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-  
-  
+
   tag_release:
-    needs: [initial_deployment_pipeline]
+    needs: [deploy]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Bump version and push tag
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ','), '#skip')}}
         uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
