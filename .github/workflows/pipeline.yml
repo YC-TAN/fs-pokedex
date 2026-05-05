@@ -42,29 +42,6 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-
-
-      - 
-
-      - name: Notify on failure
-        uses: sarisia/actions-status-discord@v1
-        if: ${{ github.event_name == 'push' && failure() }}
-        with:
-          webhook: ${{ secrets.WEBHOOK_URL }}
-          status: ${{ job.status }}
-          nodetail: true
-          content: "Build Failed!" 
-          title: "Failure Details"
-          description: |
-            **Repo:** ${{ github.repository }}
-            **Branch:** ${{ github.ref_name }}
-            **Commit:** `${{ github.sha }}`
-            **Message:** ${{ github.event.head_commit.message }}
-            **Author:** ${{ github.event.head_commit.author.name }}
-            **Workflow:** ${{ github.workflow }}
-            **Job:** ${{ github.job }}
-            [View Commit](${{ github.event.head_commit.url }}) 
-            [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
   deploy:
     needs: [build_and_test]
     runs-on: ubuntu-latest
