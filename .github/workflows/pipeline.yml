@@ -46,6 +46,13 @@ jobs:
         if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ','), '#skip') }}
         run: curl ${{secrets.RENDER_DEPLOY_HOOK}}
 
+      - uses: sarisia/actions-status-discord@v1
+        if: ${{ always() }}
+        with:
+          webhook: ${{ secrets.WEBHOOK_URL }}
+          status: ${{ job.status }}
+          title: deployment
+
   tag_release:
     needs: [initial_deployment_pipeline]
     runs-on: ubuntu-latest
