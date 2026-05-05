@@ -46,12 +46,19 @@ jobs:
         if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ','), '#skip') }}
         run: curl ${{secrets.RENDER_DEPLOY_HOOK}}
 
-      - uses: sarisia/actions-status-discord@v1
-        if: ${{ always() }}
+      - name: Success
+        uses: sarisia/actions-status-discord@v1
+        if: ${{ github.event_name == 'push' && success() }}
         with:
           webhook: ${{ secrets.WEBHOOK_URL }}
           status: ${{ job.status }}
-          title: deployment
+          content: "✅Deployment successful!" 
+          title: "deployment"
+          description: |
+            Commit: `${{ github.sha}}`
+            Message: `${{ github.event.head_commit.message }}`
+            Author: `${{ github.event.head_commit.author.name }}`
+
 
   tag_release:
     needs: [initial_deployment_pipeline]
