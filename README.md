@@ -14,3 +14,4 @@ Start by running `npm install` inside the project folder
 
 ## Link
 [Visit Pokedex](https://fs-pokedex-r19i.onrender.com)
+[Repository for Exercise 21 & 22](https://github.com/YC-TAN/fs-bloglist)
