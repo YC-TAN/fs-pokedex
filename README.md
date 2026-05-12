@@ -12,7 +12,7 @@ Start by running `npm install` inside the project folder
 `npm run build` to make a production build
 `npm run start-prod` to run your production build
 
-## Link
+## Links
 [Visit Pokedex](https://fs-pokedex-r19i.onrender.com)
 
 [Repository for Exercise 21 & 22](https://github.com/YC-TAN/fs-bloglist)
